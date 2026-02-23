@@ -6,7 +6,7 @@ from PIL import Image
 import pandas as pd
 from database import add_food_log, get_user_profile
 from api_service import extract_food_nutrition
-from food_database import search_foods, FOOD_DATABASE, get_common_foods
+from CalorieTrackingApp.food_database import search_foods, FOOD_DATABASE, get_common_foods
 
 def show_food_entry(user_id):
     """Show food entry page with manual, gallery, image, and AI options."""
