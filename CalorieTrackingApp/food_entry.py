@@ -312,7 +312,7 @@ def show_food_entry(user_id):
         
         uploaded_file = st.file_uploader(
             "Upload a food image",
-            type=['jpg', 'jpeg', 'png'],
+            type=['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif', 'heic'],
             help="Upload a clear image of your food for analysis",
             key="image_upload"
         )
