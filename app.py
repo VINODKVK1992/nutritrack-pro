@@ -95,8 +95,15 @@ def show_login_page():
                 if new_username and new_email and new_password:
                     success, message, user_id = register_user(new_username, new_email, new_password, confirm_password)
                     if success:
-                        st.success(message)
+                        st.success(message + " Redirecting to login...")
                         st.balloons()
+                        import time
+                        time.sleep(5)
+                        # Clear form fields
+                        for key in ['register_username', 'register_email', 'register_password', 'confirm_password']:
+                            if key in st.session_state:
+                                del st.session_state[key]
+                        st.rerun()
                     else:
                         st.error(message)
                 else:

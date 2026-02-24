@@ -13,7 +13,7 @@ def show_home_dashboard(user_id):
     # Get user profile
     profile = get_user_profile(user_id)
     if not profile:
-        st.error("Profile not found. Please set up your profile first.")
+        st.info("👋 Welcome! Let's set up your profile to get started with personalized nutrition tracking.")
         return
     
     st.title("🏠 Home Dashboard")
@@ -57,7 +57,7 @@ def show_home_dashboard(user_id):
         st.metric("BMI", f"{bmi}", f"{get_bmi_category(bmi)}")
     
     with col3:
-        st.metric("Weight", f"{profile_dict['weight']} kg")
+        st.metric("Weight", f"{profile_dict['weight']:.2f} kg")
     
     with col4:
         st.metric("Height", f"{profile_dict['height']} cm")
@@ -82,6 +82,29 @@ def show_home_dashboard(user_id):
                     st.rerun()
                 else:
                     st.error("❌ Failed to delete entries")
+        
+        # Display food table with delete buttons
+        for idx, log in enumerate(food_log):
+            log_dict = dict(log)
+            col1, col2, col3, col4, col5, col6 = st.columns([3, 2, 1, 1, 1, 1])
+            with col1:
+                st.write(f"**{log_dict['food_name']}**")
+            with col2:
+                st.write(log_dict.get('meal_type', 'Snack'))
+            with col3:
+                st.write(f"{int(log_dict['calories'] or 0)} cal")
+            with col4:
+                st.write(f"{log_dict['protein'] or 0:.1f}g P")
+            with col5:
+                st.write(f"{log_dict['carbs'] or 0:.1f}g C")
+            with col6:
+                if st.button("❌", key=f"del_{log_dict['id']}", help="Delete this entry"):
+                    from database import delete_food_log
+                    if delete_food_log(log_dict['id']):
+                        st.success("✅ Deleted!")
+                        st.rerun()
+        
+        st.divider()
         
         # Merge duplicate entries by food name and meal type
         merged_foods = {}

@@ -191,8 +191,11 @@ def show_food_entry(user_id):
                         entry_date=entry_date_str
                     )
                     
-                    st.session_state['food_save_msg'] = f"✅ Saved meal with {num_items} items ({int(total_calories)} cal)!"
+                    # Show success message above the meal section
+                    st.success(f"✅ Saved meal with {num_items} items ({int(total_calories)} cal)!")
                     st.session_state.meal_items = []
+                    import time
+                    time.sleep(2)
                     st.rerun()
                 except Exception as e:
                     st.error(f"❌ Error saving meal: {str(e)}")
@@ -396,7 +399,14 @@ def show_food_entry(user_id):
             if st.button("💾 Save Food Entry", use_container_width=True, type="primary", key="save_image_entry"):
                 try:
                     entry_date_str = entry_date.strftime('%Y-%m-%d') if hasattr(entry_date, 'strftime') else str(entry_date)
+                    
+                    # Extract food names from analysis
                     food_name = st.session_state.image_description_saved or "Image analyzed food"
+                    if 'food_items' in nutrition_data and nutrition_data['food_items']:
+                        food_names = [item['name'] for item in nutrition_data['food_items']]
+                        food_name = ", ".join(food_names[:3])  # First 3 items
+                        if len(nutrition_data['food_items']) > 3:
+                            food_name += f" (+{len(nutrition_data['food_items'])-3} more)"
                     
                     add_food_log(
                         user_id,
