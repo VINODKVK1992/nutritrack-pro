@@ -103,17 +103,22 @@ def show_home_dashboard(user_id):
         st.dataframe(df_foods.drop(columns=['ID']), use_container_width=True, hide_index=True)
         
         # Delete row selector
-        selected_food = st.selectbox(
-            "Select food to delete",
-            options=[(row['ID'], f"{row['Food']} - {row['Calories']} cal") for _, row in df_foods.iterrows()],
-            format_func=lambda x: x[1],
-            key="delete_selector"
-        )
-        if st.button("❌ Delete Selected", type="secondary"):
-            from database import delete_food_log
-            if delete_food_log(selected_food[0]):
-                st.success("✅ Deleted!")
-                st.rerun()
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            selected_food = st.selectbox(
+                "Select food to delete",
+                options=[(row['ID'], f"{row['Food']} - {row['Calories']} cal") for _, row in df_foods.iterrows()],
+                format_func=lambda x: x[1],
+                key="delete_selector"
+            )
+        with col2:
+            st.write("")
+            st.write("")
+            if st.button("❌ Delete", type="secondary", use_container_width=True):
+                from database import delete_food_log
+                if delete_food_log(selected_food[0]):
+                    st.success("✅ Deleted!")
+                    st.rerun()
         
         st.divider()
         

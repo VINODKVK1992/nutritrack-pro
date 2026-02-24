@@ -76,6 +76,29 @@ def apply_custom_css():
         font-size: 2rem;
         font-weight: 700;
     }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .main-header h1 {
+            font-size: 1.8rem;
+        }
+        .main-header p {
+            font-size: 0.9rem;
+        }
+        .main-header {
+            padding: 1.5rem;
+        }
+        .main-footer {
+            padding: 1.5rem;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.3rem;
+        }
+        .stButton>button {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 

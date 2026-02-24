@@ -37,6 +37,33 @@ st.markdown("""
     .css-1d391kg {
         padding: 2rem 1rem;
     }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .main {
+            padding: 0.5rem 0.5rem;
+        }
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.2rem;
+        }
+        .stButton>button {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+        }
+        h2 {
+            font-size: 1.3rem;
+        }
+        h3 {
+            font-size: 1.1rem;
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
