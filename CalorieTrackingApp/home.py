@@ -103,75 +103,25 @@ def show_home_dashboard(user_id):
         st.dataframe(df_foods.drop(columns=['ID']), use_container_width=True, hide_index=True)
         
         # Delete row selector
-        st.write("**Delete Entry:**")
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            selected_food = st.selectbox(
-                "Select food to delete",
-                options=[(row['ID'], f"{row['Food']} - {row['Calories']} cal") for _, row in df_foods.iterrows()],
-                format_func=lambda x: x[1],
-                key="delete_selector"
-            )
-        with col2:
-            if st.button("❌ Delete", type="secondary", use_container_width=True):
-                from database import delete_food_log
-                if delete_food_log(selected_food[0]):
-                    st.success("✅ Deleted!")
-                    st.rerun()
+        selected_food = st.selectbox(
+            "Select food to delete",
+            options=[(row['ID'], f"{row['Food']} - {row['Calories']} cal") for _, row in df_foods.iterrows()],
+            format_func=lambda x: x[1],
+            key="delete_selector"
+        )
+        if st.button("❌ Delete Selected", type="secondary"):
+            from database import delete_food_log
+            if delete_food_log(selected_food[0]):
+                st.success("✅ Deleted!")
+                st.rerun()
         
         st.divider()
         
-        # Merge duplicate entries by food name and meal type
-        merged_foods = {}
-        for log in food_log:
-            log_dict = dict(log)
-            key = (log_dict['food_name'], log_dict.get('meal_type', 'Snack'))
-            
-            if key in merged_foods:
-                # Merge with existing entry
-                merged_foods[key]['quantity'] += 1
-                merged_foods[key]['calories'] += log_dict['calories'] or 0
-                merged_foods[key]['protein'] += log_dict['protein'] or 0
-                merged_foods[key]['carbs'] += log_dict['carbs'] or 0
-                merged_foods[key]['fat'] += log_dict['fat'] or 0
-            else:
-                # New entry
-                merged_foods[key] = {
-                    'food_name': log_dict['food_name'],
-                    'meal_type': log_dict.get('meal_type', 'Snack'),
-                    'quantity': 1,
-                    'calories': log_dict['calories'] or 0,
-                    'protein': log_dict['protein'] or 0,
-                    'carbs': log_dict['carbs'] or 0,
-                    'fat': log_dict['fat'] or 0
-                }
-        
-        # Create dataframe from merged data
-        foods_data = []
-        total_calories = 0
-        total_protein = 0
-        total_carbs = 0
-        total_fat = 0
-        
-        for (food_name, meal_type), data in merged_foods.items():
-            qty_str = f"{data['quantity']}x" if data['quantity'] > 1 else "1x"
-            foods_data.append({
-                "Meal Type": data['meal_type'],
-                "Food": data['food_name'],
-                "Quantity": qty_str,
-                "Calories": int(data['calories']),
-                "Protein (g)": round(data['protein'], 1),
-                "Carbs (g)": round(data['carbs'], 1),
-                "Fat (g)": round(data['fat'], 1)
-            })
-            total_calories += data['calories']
-            total_protein += data['protein']
-            total_carbs += data['carbs']
-            total_fat += data['fat']
-        
-        # Display food table
-        df_foods = pd.DataFrame(foods_data)
-        st.dataframe(df_foods, use_container_width=True, hide_index=True)
+        # Calculate totals
+        total_calories = sum(log['calories'] or 0 for log in food_log)
+        total_protein = sum(log['protein'] or 0 for log in food_log)
+        total_carbs = sum(log['carbs'] or 0 for log in food_log)
+        total_fat = sum(log['fat'] or 0 for log in food_log)
         
         # Remaining calories
         remaining = profile_dict['daily_calorie_goal'] - total_calories
