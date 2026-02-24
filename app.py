@@ -124,12 +124,12 @@ def show_login_page():
                     if success:
                         st.success(message + " Redirecting to login...")
                         st.balloons()
-                        import time
-                        time.sleep(5)
-                        # Clear form fields
+                        # Clear form fields immediately
                         for key in ['register_username', 'register_email', 'register_password', 'confirm_password']:
                             if key in st.session_state:
                                 del st.session_state[key]
+                        import time
+                        time.sleep(3)
                         st.rerun()
                     else:
                         st.error(message)
