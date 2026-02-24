@@ -78,13 +78,20 @@ def show_login_page():
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
+        # Check if registration was successful
+        if st.session_state.get('registration_success') and st.session_state.get('show_login_after_reg'):
+            st.success(st.session_state.get('success_message', 'Registration successful!'))
+            st.balloons()
+            del st.session_state['registration_success']
+            del st.session_state['show_login_after_reg']
+            if 'success_message' in st.session_state:
+                del st.session_state['success_message']
         
-        # Tabs for login and register
+        # Normal tabs
         tab1, tab2 = st.tabs(["🔓 Login", "📝 Register"])
         
         with tab1:
             st.subheader("Login to Your Account")
-            
             username = st.text_input("Username", key="login_username")
             password = st.text_input("Password", type="password", key="login_password")
             
@@ -105,8 +112,12 @@ def show_login_page():
         with tab2:
             st.subheader("Create a New Account")
             
-            new_username = st.text_input("Choose a username", key="register_username")
-            new_email = st.text_input("Email address", key="register_email")
+            # Use a counter to force widget recreation
+            if 'reg_form_key' not in st.session_state:
+                st.session_state.reg_form_key = 0
+            
+            new_username = st.text_input("Choose a username", key=f"register_username_{st.session_state.reg_form_key}")
+            new_email = st.text_input("Email address", key=f"register_email_{st.session_state.reg_form_key}")
             
             st.info("🔒 **Password Requirements:**\n"
                    "- At least 8 characters\n"
@@ -115,21 +126,17 @@ def show_login_page():
                    "- One number (0-9)\n"
                    "- One special character (!@#$%^&*)")
             
-            new_password = st.text_input("Password", type="password", key="register_password")
-            confirm_password = st.text_input("Confirm password", type="password", key="confirm_password")
+            new_password = st.text_input("Password", type="password", key=f"register_password_{st.session_state.reg_form_key}")
+            confirm_password = st.text_input("Confirm password", type="password", key=f"confirm_password_{st.session_state.reg_form_key}")
             
             if st.button("Register", use_container_width=True, type="primary"):
                 if new_username and new_email and new_password:
                     success, message, user_id = register_user(new_username, new_email, new_password, confirm_password)
                     if success:
-                        st.success(message + " Redirecting to login...")
-                        st.balloons()
-                        # Clear form fields immediately
-                        for key in ['register_username', 'register_email', 'register_password', 'confirm_password']:
-                            if key in st.session_state:
-                                del st.session_state[key]
-                        import time
-                        time.sleep(3)
+                        st.session_state['registration_success'] = True
+                        st.session_state['show_login_after_reg'] = True
+                        st.session_state['success_message'] = message
+                        st.session_state.reg_form_key += 1  # Increment to clear form
                         st.rerun()
                     else:
                         st.error(message)
