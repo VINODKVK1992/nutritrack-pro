@@ -84,25 +84,40 @@ def show_home_dashboard(user_id):
                     st.error("❌ Failed to delete entries")
         
         # Display food table with delete buttons
-        for idx, log in enumerate(food_log):
+        foods_data = []
+        for log in food_log:
             log_dict = dict(log)
-            col1, col2, col3, col4, col5, col6 = st.columns([3, 2, 1, 1, 1, 1])
-            with col1:
-                st.write(f"**{log_dict['food_name']}**")
-            with col2:
-                st.write(log_dict.get('meal_type', 'Snack'))
-            with col3:
-                st.write(f"{int(log_dict['calories'] or 0)} cal")
-            with col4:
-                st.write(f"{log_dict['protein'] or 0:.1f}g P")
-            with col5:
-                st.write(f"{log_dict['carbs'] or 0:.1f}g C")
-            with col6:
-                if st.button("❌", key=f"del_{log_dict['id']}", help="Delete this entry"):
-                    from database import delete_food_log
-                    if delete_food_log(log_dict['id']):
-                        st.success("✅ Deleted!")
-                        st.rerun()
+            foods_data.append({
+                "ID": log_dict['id'],
+                "Meal Type": log_dict.get('meal_type', 'Snack'),
+                "Food": log_dict['food_name'],
+                "Calories": int(log_dict['calories'] or 0),
+                "Protein (g)": round(log_dict['protein'] or 0, 1),
+                "Carbs (g)": round(log_dict['carbs'] or 0, 1),
+                "Fat (g)": round(log_dict['fat'] or 0, 1)
+            })
+        
+        df_foods = pd.DataFrame(foods_data)
+        
+        # Display table
+        st.dataframe(df_foods.drop(columns=['ID']), use_container_width=True, hide_index=True)
+        
+        # Delete row selector
+        st.write("**Delete Entry:**")
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            selected_food = st.selectbox(
+                "Select food to delete",
+                options=[(row['ID'], f"{row['Food']} - {row['Calories']} cal") for _, row in df_foods.iterrows()],
+                format_func=lambda x: x[1],
+                key="delete_selector"
+            )
+        with col2:
+            if st.button("❌ Delete", type="secondary", use_container_width=True):
+                from database import delete_food_log
+                if delete_food_log(selected_food[0]):
+                    st.success("✅ Deleted!")
+                    st.rerun()
         
         st.divider()
         
